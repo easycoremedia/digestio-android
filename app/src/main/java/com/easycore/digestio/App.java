@@ -19,15 +19,6 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-//        Fabric.with(
-//                this,
-//                new Crashlytics.Builder().core(
-//                        new CrashlyticsCore.Builder()
-//                                .disabled(BuildConfig.DEBUG && DISABLE_CRASHLYTICS_FOR_DEBUG_BUILDS)
-//                                .build()
-//                ).build(),
-//                new Answers()
-//        );
         initLoggers();
 
         appComponent = DaggerAppComponent.builder()
