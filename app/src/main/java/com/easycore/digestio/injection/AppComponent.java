@@ -1,5 +1,6 @@
 package com.easycore.digestio.injection;
 
+import com.easycore.digestio.presenters.impl.MainPresenter;
 import com.easycore.digestio.view.activities.MainActivity;
 
 import javax.inject.Singleton;
@@ -15,4 +16,5 @@ public interface AppComponent {
 
     void inject(MainActivity activity);
 
+    void inject(MainPresenter mainPresenter);
 }

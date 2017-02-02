@@ -3,9 +3,10 @@ package com.easycore.digestio.injection;
 import android.app.Application;
 import android.content.Context;
 
+import com.easycore.digestio.utils.Preferences;
+
 import javax.inject.Singleton;
 
-import cz.followme.utils.Preferences;
 import dagger.Module;
 import dagger.Provides;
 

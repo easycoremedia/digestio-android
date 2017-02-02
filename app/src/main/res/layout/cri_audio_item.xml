@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:id="@+id/audio_item_container">
+
+    <ImageView
+        android:id="@+id/audio_item_imv_picture"
+        android:layout_width="match_parent"
+        android:layout_height="250dp" />
+
+    <LinearLayout
+        android:id="@+id/audio_item_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/audio_item_imv_picture"
+        android:layout_toLeftOf="@+id/audio_item_right_description"
+        android:orientation="vertical"
+        android:paddingBottom="8dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="5dp"
+        android:paddingTop="8dp">
+
+        <TextView
+            android:id="@+id/audio_item_txv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:textColor="#444"
+            android:textSize="23sp"
+            tools:text="Title" />
+
+        <TextView
+            android:id="@+id/audio_item_txv_tags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="sport, trump, epic fail" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/audio_item_right_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/audio_item_description"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/audio_item_imv_picture"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="12dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/audio_item_txv_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-black"
+            android:textColor="#444"
+            android:textSize="20sp"
+            tools:text="56:43" />
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>
