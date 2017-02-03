@@ -62,7 +62,7 @@ public class AudioItemAdapter extends RecyclerView.Adapter<AudioItemAdapter.Audi
         final AudioItem item = items.get(position);
 
         holder.txvName.setText(item.getName());
-        holder.txvTags.setText(item.getTags().toString());
+        holder.txvTags.setText(item.getDescription());
 
         if (holder.loadedImgUrl == null || !holder.loadedImgUrl.equals(item.getPictureUrl())) {
             holder.loadedImgUrl = item.getPictureUrl();

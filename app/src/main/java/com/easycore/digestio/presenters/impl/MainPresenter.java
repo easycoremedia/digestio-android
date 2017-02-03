@@ -4,17 +4,22 @@ import android.os.Bundle;
 
 import com.easycore.digestio.App;
 import com.easycore.digestio.data.model.AudioItem;
+import com.easycore.digestio.data.model.GetItemsResponse;
 import com.easycore.digestio.data.repository.network.NetworkDataRepository;
 import com.easycore.digestio.presenters.Presenter;
+import com.easycore.digestio.usecases.impl.GetItemsUsecase;
 import com.easycore.digestio.utils.PlayerHelper;
 import com.easycore.digestio.utils.Preferences;
 import com.easycore.digestio.view.MainView;
 
 import java.util.ArrayList;
+import java.util.Timer;
 
 import javax.inject.Inject;
 
+import rx.Observer;
 import rx.subscriptions.CompositeSubscription;
+import timber.log.Timber;
 
 /**
  * Created by Jakub Begera (jakub@easycoreapps.com) on 02.02.17.
@@ -56,7 +61,50 @@ public class MainPresenter implements Presenter<MainView> {
 
     }
 
-    public void initContent() {
+    public void initContent(String searchResult) {
+        String languages = "fr";
+        String keywords = findKeywordsInSearchResult(searchResult);
+
+        new GetItemsUsecase(dataRepository, languages, keywords)
+                .execute(new Observer<GetItemsResponse>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Timber.e(e);
+                    }
+
+                    @Override
+                    public void onNext(GetItemsResponse getItemsResponse) {
+                        view.fillAudioItems(getItemsResponse.getItems());
+                        playerHelper.init(getItemsResponse.getItems(), new PlayerHelper.Callback() {
+                            @Override
+                            public void playbackStarted() {
+                                view.notifyItemsChanged();
+                            }
+
+                            @Override
+                            public void playbackFinished() {
+                                view.notifyItemsChanged();
+                            }
+
+                            @Override
+                            public void progressChanged(int position) {
+//                view.notifyItemsChanged();
+                            }
+                        });
+                    }
+                });
+    }
+
+    public String findKeywordsInSearchResult(String searchResult) {
+        return "sport";
+    }
+
+    public void initContentMock() {
         ArrayList<AudioItem> items = new ArrayList<>();
         AudioItem i;
 

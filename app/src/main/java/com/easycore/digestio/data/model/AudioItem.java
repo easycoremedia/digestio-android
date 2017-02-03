@@ -3,6 +3,9 @@ package com.easycore.digestio.data.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 
 /**
@@ -10,10 +13,21 @@ import java.util.ArrayList;
  */
 public class AudioItem implements Parcelable {
 
+    @Expose
+    @SerializedName("title")
     private String name;
+    @Expose
+    @SerializedName("fileUrl")
     private String audioUrl;
     private String duration;
+    @Expose
+    @SerializedName("imageUrl")
     private String pictureUrl;
+
+    @Expose
+    @SerializedName("description")
+    private String description;
+
     private ArrayList<String> tags = new ArrayList<>();
 
     private boolean isPlaying;
@@ -117,5 +131,13 @@ public class AudioItem implements Parcelable {
 
     public void setPlayingProgress(double playingProgress) {
         this.playingProgress = playingProgress;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
