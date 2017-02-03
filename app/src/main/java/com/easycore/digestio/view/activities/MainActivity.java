@@ -1,22 +1,16 @@
 package com.easycore.digestio.view.activities;
 
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
 import com.easycore.digestio.App;
-import com.easycore.digestio.BuildConfig;
 import com.easycore.digestio.R;
 import com.easycore.digestio.data.model.AudioItem;
-import com.easycore.digestio.data.model.PlaybackHolder;
 import com.easycore.digestio.presenters.impl.MainPresenter;
 import com.easycore.digestio.view.MainView;
 import com.easycore.digestio.view.adapters.AudioItemAdapter;
@@ -33,9 +27,6 @@ public class MainActivity extends BaseActivity implements MainView, AudioItemAda
 
     public static void startActivity(Activity activity, String parameters) {
         Intent intent = new Intent(activity, MainActivity.class);
-//        Bundle bundle = new Bundle();
-//        bundle.putString(EXTRA_SEARCH_RESULT, parameters);
-//        intent.putExtras(bundle);
         intent.putExtra(EXTRA_SEARCH_RESULT, parameters);
         activity.startActivity(intent);
     }
@@ -58,9 +49,11 @@ public class MainActivity extends BaseActivity implements MainView, AudioItemAda
         ButterKnife.bind(this);
 
 
-//        Bundle extras = getIntent().getExtras();
-//        String searchResult = extras.getString(EXTRA_SEARCH_RESULT, "sport");
         String searchResult = getIntent().getStringExtra(EXTRA_SEARCH_RESULT);
+        if (searchResult == null || searchResult.isEmpty()) {
+            searchResult = "sport";
+        }
+
 
         presenter = new MainPresenter((App) getApplication());
         presenter.onEnterScope(savedInstanceState);
