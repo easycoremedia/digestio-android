@@ -1,3 +1,5 @@
 <resources>
 	<string name="app_name">Digestio</string>
+	<string name="welcome_message">Bonjour. Que voulez-vous écouter?</string>
+	<string name="welcome_message_desc">Dites sport, politique, actualité...</string>
 </resources>

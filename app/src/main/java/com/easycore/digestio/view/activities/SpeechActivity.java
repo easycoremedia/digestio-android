@@ -8,10 +8,11 @@ import ai.api.model.AIResponse;
 import ai.api.model.Result;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.ImageButton;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -26,12 +27,9 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
 
     private AIService aiService;
     private TextToSpeech tts;
+    private Handler handler;
 
-    private static final ai.api.AIConfiguration.SupportedLanguages ENGLISH = ai.api.AIConfiguration.SupportedLanguages.English;
-    private static final ai.api.AIConfiguration.SupportedLanguages ITALIAN = ai.api.AIConfiguration.SupportedLanguages.Italian;
-
-    @BindView(R.id.resultTextView) TextView resultTextView;
-    @BindView(R.id.testButton) Button testButton;
+    @BindView(R.id.testButton) ImageButton testButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +37,10 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
         setContentView(R.layout.activity_speech);
         ButterKnife.bind(this);
 
+        handler = new Handler(Looper.getMainLooper());
+
         final AIConfiguration config = new AIConfiguration(Config.CLIENT_ACCESS_TOKEN,
-                ITALIAN,
+                ai.api.AIConfiguration.SupportedLanguages.French,
                 AIConfiguration.RecognitionEngine.System);
 
         aiService = AIService.getService(this, config);
@@ -50,7 +50,8 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
         tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int i) {
-                tts.setLanguage(Locale.ITALY);
+                tts.setLanguage(Locale.CANADA_FRENCH);
+                welcomeUser();
             }
         });
 
@@ -83,6 +84,11 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
         startActivity(new Intent(this, MainActivity.class));
     }
 
+    private void welcomeUser() {
+        final String welcomeText = getString(R.string.welcome_message);
+        tts.speak(welcomeText, TextToSpeech.QUEUE_FLUSH, null);
+    }
+
     private void processAIResponse(AIResponse response) {
         final Result result = response.getResult();
 
@@ -97,10 +103,10 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
         final String fulfillment = result.getFulfillment().getSpeech();
 
         // Show results in TextView.
-        resultTextView.setText("Query:" + result.getResolvedQuery() +
-                "\nAction: " + result.getAction() +
-                "\nParameters: " + parameterString +
-                "\nFullfillment: " + fulfillment);
+//        resultTextView.setText("Query:" + result.getResolvedQuery() +
+//                "\nAction: " + result.getAction() +
+//                "\nParameters: " + parameterString +
+//                "\nFullfillment: " + fulfillment);
 
         tts.speak(fulfillment, TextToSpeech.QUEUE_FLUSH, null);
     }
