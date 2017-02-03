@@ -64,10 +64,11 @@ public class PlayerHelper {
         playItem(items.get(position));
     }
 
-    public void playItem(AudioItem item) {
+    public void playItem(final AudioItem item) {
         progressUpdateHandler.removeCallbacks(progressUpdateTask);
         for (AudioItem i : items) {
             i.setPlaying(false);
+            i.setPlayingProgress(0);
         }
         item.setPlaying(true);
         callback.playbackStarted();
@@ -80,15 +81,18 @@ public class PlayerHelper {
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             mediaPlayer.setDataSource(item.getAudioUrl());
-            mediaPlayer.prepare();
+            mediaPlayer.prepareAsync();
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mediaPlayer.start();
+                    currentItem = item;
+                    progressUpdateHandler.postDelayed(progressUpdateTask, PROGRESS_UPDATE_INTERVAL);
+                }
+            });
         } catch (Exception e) {
             Timber.e(e, "Player init failed.");
-            return;
         }
-
-        mediaPlayer.start();
-        currentItem = item;
-        progressUpdateHandler.postDelayed(progressUpdateTask, PROGRESS_UPDATE_INTERVAL);
     }
 
     public void stop() {
