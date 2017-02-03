@@ -125,10 +125,15 @@ public class SpeechActivity extends AppCompatActivity implements AIListener, Spr
 
     private void processAIResponse(AIResponse response) {
         final Result result = response.getResult();
-        if (result.getAction().equals("input.unknown")) {
-            Toast.makeText(this, "Nothing found", Toast.LENGTH_LONG).show();
+        final String fulfillment = result.getFulfillment().getSpeech();
+
+
+        if ("input.unknown".equals(result.getAction())
+                || "input.welcome".equals(result.getAction())) {
+            tts.speak(fulfillment, TextToSpeech.QUEUE_FLUSH, null);
             return;
         }
+
         ArrayList<String> values = new ArrayList<>();
         // Get parameters
         if (result.getParameters() != null && !result.getParameters().isEmpty()) {
@@ -147,8 +152,6 @@ public class SpeechActivity extends AppCompatActivity implements AIListener, Spr
 
         final String query = result.getResolvedQuery();
         final String action = result.getAction();
-        final String fulfillment = result.getFulfillment().getSpeech();
-
         tts.speak(fulfillment, TextToSpeech.QUEUE_FLUSH, null);
 
 
