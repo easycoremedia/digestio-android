@@ -6,11 +6,9 @@ import ai.api.android.AIService;
 import ai.api.model.AIError;
 import ai.api.model.AIResponse;
 import ai.api.model.Result;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageButton;
 import butterknife.BindView;
@@ -23,11 +21,12 @@ import com.google.gson.JsonElement;
 import java.util.Locale;
 import java.util.Map;
 
-public class SpeechActivity extends AppCompatActivity implements AIListener {
+public class SpeechActivity extends AppCompatActivity implements AIListener{
 
     private AIService aiService;
     private TextToSpeech tts;
-    private Handler handler;
+
+    private String parameters;
 
     @BindView(R.id.testButton) ImageButton testButton;
 
@@ -36,8 +35,6 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_speech);
         ButterKnife.bind(this);
-
-        handler = new Handler(Looper.getMainLooper());
 
         final AIConfiguration config = new AIConfiguration(Config.CLIENT_ACCESS_TOKEN,
                 ai.api.AIConfiguration.SupportedLanguages.French,
@@ -49,8 +46,11 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
 
         tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
-            public void onInit(int i) {
-                tts.setLanguage(Locale.CANADA_FRENCH);
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    tts.setLanguage(Locale.CANADA_FRENCH);
+                    tts.setOnUtteranceProgressListener(utteranceProgressListener);
+                }
             }
         });
 
@@ -75,28 +75,27 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
 
     @OnClick(R.id.testButton)
     public void onButtonClicked() {
+        aiService.cancel();
         aiService.startListening();
     }
 
     @OnClick(R.id.skipButton)
     public void onSkipButtonClicked() {
-        startActivity(new Intent(this, MainActivity.class));
+        MainActivity.startActivity(this, "");
     }
 
     private void processAIResponse(AIResponse response) {
         final Result result = response.getResult();
 
         // Get parameters
-        String parameterString = "";
         if (result.getParameters() != null && !result.getParameters().isEmpty()) {
             for (final Map.Entry<String, JsonElement> entry : result.getParameters().entrySet()) {
-                parameterString += "(" + entry.getKey() + ", " + entry.getValue() + ") ";
+                this.parameters += "(" + entry.getKey() + ": " + entry.getValue() + ") ";
             }
         }
 
         final String query = result.getResolvedQuery();
         final String action = result.getAction();
-        final String parameters = parameterString;
         final String fulfillment = result.getFulfillment().getSpeech();
 
         tts.speak(fulfillment, TextToSpeech.QUEUE_FLUSH, null);
@@ -131,4 +130,30 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
     public void onListeningFinished() {
 
     }
+
+    private final UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
+        @Override
+        public void onStart(String s) {
+
+        }
+
+        @Override
+        public void onDone(String s) {
+            if (parameters == null) {
+                return;
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    MainActivity.startActivity(SpeechActivity.this, parameters);
+                }
+            });
+        }
+
+        @Override
+        public void onError(String s) {
+
+        }
+    };
 }
