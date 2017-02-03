@@ -7,8 +7,9 @@ import ai.api.model.AIError;
 import ai.api.model.AIResponse;
 import ai.api.model.Result;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageButton;
 import butterknife.BindView;
@@ -16,7 +17,10 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.easycore.digestio.Config;
 import com.easycore.digestio.R;
-import com.facebook.rebound.*;
+import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringConfig;
+import com.facebook.rebound.SpringListener;
+import com.facebook.rebound.SpringSystem;
 import com.google.gson.JsonElement;
 
 import java.util.Locale;
@@ -27,6 +31,7 @@ public class SpeechActivity extends AppCompatActivity implements AIListener, Spr
     private AIService aiService;
     private TextToSpeech tts;
     private String parameters;
+    private Handler handler;
 
     private Spring spring;
 
@@ -45,6 +50,8 @@ public class SpeechActivity extends AppCompatActivity implements AIListener, Spr
         setContentView(R.layout.activity_speech);
         ButterKnife.bind(this);
 
+        handler = new Handler(Looper.getMainLooper());
+
         final AIConfiguration config = new AIConfiguration(Config.CLIENT_ACCESS_TOKEN,
                 ai.api.AIConfiguration.SupportedLanguages.French,
                 AIConfiguration.RecognitionEngine.System);
@@ -58,7 +65,6 @@ public class SpeechActivity extends AppCompatActivity implements AIListener, Spr
             public void onInit(int status) {
                 if (status == TextToSpeech.SUCCESS) {
                     tts.setLanguage(Locale.CANADA_FRENCH);
-                    tts.setOnUtteranceProgressListener(utteranceProgressListener);
                 }
             }
         });
@@ -131,6 +137,16 @@ public class SpeechActivity extends AppCompatActivity implements AIListener, Spr
         final String fulfillment = result.getFulfillment().getSpeech();
 
         tts.speak(fulfillment, TextToSpeech.QUEUE_FLUSH, null);
+        startAudio(parameters);
+    }
+
+    private void startAudio(final String speechResult) {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.startActivity(SpeechActivity.this, speechResult);
+            }
+        }, 1500); // random pause after French lady finish speaking
     }
 
     @Override
@@ -165,31 +181,6 @@ public class SpeechActivity extends AppCompatActivity implements AIListener, Spr
         spring.setEndValue(0f);
     }
 
-    private final UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
-        @Override
-        public void onStart(String s) {
-
-        }
-
-        @Override
-        public void onDone(String s) {
-            if (parameters == null) {
-                return;
-            }
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    MainActivity.startActivity(SpeechActivity.this, parameters);
-                }
-            });
-        }
-
-        @Override
-        public void onError(String s) {
-
-        }
-    };
 
     @Override
     public void onSpringUpdate(Spring spring) {
