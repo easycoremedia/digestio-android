@@ -1,11 +1,14 @@
 package com.easycore.digestio.data.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
 /**
  * Created by Jakub Begera (jakub@easycoreapps.com) on 02.02.17.
  */
-public class AudioItem {
+public class AudioItem implements Parcelable {
 
     private String name;
     private String audioUrl;
@@ -13,12 +16,38 @@ public class AudioItem {
     private String pictureUrl;
     private ArrayList<String> tags = new ArrayList<>();
 
+    private boolean isPlaying;
+    private double playingProgress;
+
+    public AudioItem() {
+    }
+
     public AudioItem(String name, String pictureUrl, String audioUrl, String duration) {
         this.name = name;
         this.audioUrl = audioUrl;
         this.duration = duration;
         this.pictureUrl = pictureUrl;
     }
+
+    protected AudioItem(Parcel in) {
+        name = in.readString();
+        audioUrl = in.readString();
+        duration = in.readString();
+        pictureUrl = in.readString();
+        tags = in.createStringArrayList();
+    }
+
+    public static final Creator<AudioItem> CREATOR = new Creator<AudioItem>() {
+        @Override
+        public AudioItem createFromParcel(Parcel in) {
+            return new AudioItem(in);
+        }
+
+        @Override
+        public AudioItem[] newArray(int size) {
+            return new AudioItem[size];
+        }
+    };
 
     public String getName() {
         return name;
@@ -58,5 +87,35 @@ public class AudioItem {
 
     public void setTags(ArrayList<String> tags) {
         this.tags = tags;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(audioUrl);
+        dest.writeString(duration);
+        dest.writeString(pictureUrl);
+        dest.writeStringList(tags);
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    public void setPlaying(boolean playing) {
+        isPlaying = playing;
+    }
+
+    public double getPlayingProgress() {
+        return playingProgress;
+    }
+
+    public void setPlayingProgress(double playingProgress) {
+        this.playingProgress = playingProgress;
     }
 }

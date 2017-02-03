@@ -6,6 +6,7 @@ import com.easycore.digestio.App;
 import com.easycore.digestio.data.model.AudioItem;
 import com.easycore.digestio.data.repository.network.NetworkDataRepository;
 import com.easycore.digestio.presenters.Presenter;
+import com.easycore.digestio.utils.PlayerHelper;
 import com.easycore.digestio.utils.Preferences;
 import com.easycore.digestio.view.MainView;
 
@@ -24,6 +25,8 @@ public class MainPresenter implements Presenter<MainView> {
     protected NetworkDataRepository dataRepository;
     @Inject
     protected Preferences preferences;
+    @Inject
+    protected PlayerHelper playerHelper;
 
     private MainView view;
     private CompositeSubscription compositeSubscription;
@@ -89,5 +92,30 @@ public class MainPresenter implements Presenter<MainView> {
         items.add(i);
 
         view.fillAudioItems(items);
+        playerHelper.init(items, new PlayerHelper.Callback() {
+            @Override
+            public void playbackStarted() {
+                view.notifyItemsChanged();
+            }
+
+            @Override
+            public void playbackFinished() {
+                view.notifyItemsChanged();
+            }
+
+            @Override
+            public void progressChanged(int position) {
+//                view.notifyItemsChanged();
+            }
+        });
+    }
+
+    public void onItemClicked(AudioItem item, int position) {
+        if (item.isPlaying()) {
+            item.setPlaying(false);
+            playerHelper.stop();
+            return;
+        }
+        playerHelper.playItem(position);
     }
 }

@@ -13,4 +13,5 @@ public interface MainView extends View {
 
     void fillAudioItems(ArrayList<AudioItem> items);
 
+    void notifyItemsChanged();
 }

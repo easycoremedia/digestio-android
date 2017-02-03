@@ -3,6 +3,7 @@ package com.easycore.digestio.injection;
 import android.app.Application;
 import android.content.Context;
 
+import com.easycore.digestio.utils.PlayerHelper;
 import com.easycore.digestio.utils.Preferences;
 
 import javax.inject.Singleton;
@@ -32,5 +33,17 @@ public class AppModule {
                 application.getSharedPreferences("my_preffs", Context.MODE_PRIVATE),
                 application
         );
+    }
+
+    @Provides
+    @Singleton
+    public Context provideContext(Application application){
+        return application.getApplicationContext();
+    }
+
+    @Provides
+    @Singleton
+    public PlayerHelper providePlayerHelper(Context context) {
+        return new PlayerHelper(context);
     }
 }
