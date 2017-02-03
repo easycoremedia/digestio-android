@@ -23,7 +23,7 @@ public class App extends Application {
 
         appComponent = DaggerAppComponent.builder()
                 .appModule(new AppModule(this))
-                .networkModule(new NetworkModule(BuildConfig.SERVER_ENVIRONMENT + "/api/v1/"))
+                .networkModule(new NetworkModule(BuildConfig.SERVER_ENVIRONMENT))
                 .build();
     }
 
