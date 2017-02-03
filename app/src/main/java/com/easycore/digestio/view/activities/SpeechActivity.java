@@ -51,7 +51,6 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
             @Override
             public void onInit(int i) {
                 tts.setLanguage(Locale.CANADA_FRENCH);
-                welcomeUser();
             }
         });
 
@@ -84,11 +83,6 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
         startActivity(new Intent(this, MainActivity.class));
     }
 
-    private void welcomeUser() {
-        final String welcomeText = getString(R.string.welcome_message);
-        tts.speak(welcomeText, TextToSpeech.QUEUE_FLUSH, null);
-    }
-
     private void processAIResponse(AIResponse response) {
         final Result result = response.getResult();
 
@@ -100,13 +94,10 @@ public class SpeechActivity extends AppCompatActivity implements AIListener {
             }
         }
 
+        final String query = result.getResolvedQuery();
+        final String action = result.getAction();
+        final String parameters = parameterString;
         final String fulfillment = result.getFulfillment().getSpeech();
-
-        // Show results in TextView.
-//        resultTextView.setText("Query:" + result.getResolvedQuery() +
-//                "\nAction: " + result.getAction() +
-//                "\nParameters: " + parameterString +
-//                "\nFullfillment: " + fulfillment);
 
         tts.speak(fulfillment, TextToSpeech.QUEUE_FLUSH, null);
     }
