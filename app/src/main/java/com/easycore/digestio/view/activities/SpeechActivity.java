@@ -16,17 +16,26 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.easycore.digestio.Config;
 import com.easycore.digestio.R;
+import com.facebook.rebound.*;
 import com.google.gson.JsonElement;
 
 import java.util.Locale;
 import java.util.Map;
 
-public class SpeechActivity extends AppCompatActivity implements AIListener{
+public class SpeechActivity extends AppCompatActivity implements AIListener, SpringListener {
 
     private AIService aiService;
     private TextToSpeech tts;
-
     private String parameters;
+
+    private Spring spring;
+
+    private static double TENSION = 800;
+    private static double DAMPER = 20; //friction
+
+    private boolean isListening = false;
+
+
 
     @BindView(R.id.testButton) ImageButton testButton;
 
@@ -54,6 +63,18 @@ public class SpeechActivity extends AppCompatActivity implements AIListener{
             }
         });
 
+        SpringSystem springSystem = SpringSystem.create();
+
+        spring = springSystem.createSpring();
+        spring.addListener(this);
+
+        SpringConfig springConfig = new SpringConfig(TENSION, DAMPER);
+        spring.setSpringConfig(springConfig);
+
+        if (savedInstanceState != null) {
+            isListening = savedInstanceState.getBoolean("isListening");
+        }
+
     }
 
     @Override
@@ -68,6 +89,12 @@ public class SpeechActivity extends AppCompatActivity implements AIListener{
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("isListening", isListening);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         tts.shutdown();
@@ -75,8 +102,11 @@ public class SpeechActivity extends AppCompatActivity implements AIListener{
 
     @OnClick(R.id.testButton)
     public void onButtonClicked() {
-        aiService.cancel();
-        aiService.startListening();
+        if (isListening) {
+            aiService.cancel();
+        } else {
+            aiService.startListening();
+        }
     }
 
     @OnClick(R.id.skipButton)
@@ -94,6 +124,8 @@ public class SpeechActivity extends AppCompatActivity implements AIListener{
             }
         }
 
+        // null(news-topic: "Porte") (news-keyword: []) (news-topic: "Sport") (news-keyword: [])
+
         final String query = result.getResolvedQuery();
         final String action = result.getAction();
         final String fulfillment = result.getFulfillment().getSpeech();
@@ -108,7 +140,6 @@ public class SpeechActivity extends AppCompatActivity implements AIListener{
 
     @Override
     public void onError(AIError error) {
-
     }
 
     @Override
@@ -118,17 +149,20 @@ public class SpeechActivity extends AppCompatActivity implements AIListener{
 
     @Override
     public void onListeningStarted() {
-
+        isListening = true;
+        spring.setEndValue(1f);
     }
 
     @Override
     public void onListeningCanceled() {
-
+        isListening = false;
+        spring.setEndValue(0f);
     }
 
     @Override
     public void onListeningFinished() {
-
+        isListening = false;
+        spring.setEndValue(0f);
     }
 
     private final UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
@@ -156,4 +190,27 @@ public class SpeechActivity extends AppCompatActivity implements AIListener{
 
         }
     };
+
+    @Override
+    public void onSpringUpdate(Spring spring) {
+        float value = (float) spring.getCurrentValue();
+        float scale = 1f - (value * 0.5f);
+        testButton.setScaleX(scale);
+        testButton.setScaleY(scale);
+    }
+
+    @Override
+    public void onSpringAtRest(Spring spring) {
+
+    }
+
+    @Override
+    public void onSpringActivate(Spring spring) {
+
+    }
+
+    @Override
+    public void onSpringEndStateChange(Spring spring) {
+
+    }
 }

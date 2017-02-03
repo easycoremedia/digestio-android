@@ -16,7 +16,8 @@
 			android:label="@string/app_name"
 			android:supportsRtl="true"
 			android:theme="@style/AppTheme">
-		<activity android:name=".view.activities.SpeechActivity">
+		<activity android:name=".view.activities.SpeechActivity"
+		android:screenOrientation="portrait">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
 
@@ -24,7 +25,8 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".view.activities.MainActivity">
+		<activity android:name=".view.activities.MainActivity"
+				  android:screenOrientation="portrait">
 
 		</activity>
 
