@@ -63,7 +63,7 @@ public class MainPresenter implements Presenter<MainView> {
 
     public void initContent(String searchResult) {
         String languages = "fr";
-        String keywords = findKeywordsInSearchResult(searchResult);
+        String keywords = searchResult;
 
         new GetItemsUsecase(dataRepository, languages, keywords)
                 .execute(new Observer<GetItemsResponse>() {
@@ -78,9 +78,14 @@ public class MainPresenter implements Presenter<MainView> {
                     }
 
                     @Override
-                    public void onNext(GetItemsResponse getItemsResponse) {
-                        view.fillAudioItems(getItemsResponse.getItems());
-                        playerHelper.init(getItemsResponse.getItems(), new PlayerHelper.Callback() {
+                    public void onNext(GetItemsResponse response) {
+                        if (response.getItems() == null || response.getItems().isEmpty()) {
+                            view.finishOnEmptyResponse();
+                            return;
+                        }
+
+                        view.fillAudioItems(response.getItems());
+                        playerHelper.init(response.getItems(), new PlayerHelper.Callback() {
                             @Override
                             public void playbackStarted() {
                                 view.notifyItemsChanged();
@@ -98,10 +103,6 @@ public class MainPresenter implements Presenter<MainView> {
                         });
                     }
                 });
-    }
-
-    public String findKeywordsInSearchResult(String searchResult) {
-        return "sport";
     }
 
     public void initContentMock() {
@@ -165,5 +166,9 @@ public class MainPresenter implements Presenter<MainView> {
             return;
         }
         playerHelper.playItem(position);
+    }
+
+    public void stopPlayback() {
+        playerHelper.stop();
     }
 }

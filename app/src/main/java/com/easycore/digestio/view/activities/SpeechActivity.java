@@ -12,6 +12,8 @@ import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageButton;
+import android.widget.Toast;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -23,6 +25,7 @@ import com.facebook.rebound.SpringListener;
 import com.facebook.rebound.SpringSystem;
 import com.google.gson.JsonElement;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 
@@ -122,22 +125,42 @@ public class SpeechActivity extends AppCompatActivity implements AIListener, Spr
 
     private void processAIResponse(AIResponse response) {
         final Result result = response.getResult();
-
+        if (result.getAction().equals("input.unknown")) {
+            Toast.makeText(this, "Nothing found", Toast.LENGTH_LONG).show();
+            return;
+        }
+        ArrayList<String> values = new ArrayList<>();
         // Get parameters
         if (result.getParameters() != null && !result.getParameters().isEmpty()) {
             for (final Map.Entry<String, JsonElement> entry : result.getParameters().entrySet()) {
-                this.parameters += "(" + entry.getKey() + ": " + entry.getValue() + ") ";
+                String s = entry.getValue().toString();
+                if (s == null || s.isEmpty() || "[]".equals(s)) continue;
+                s = s.replaceAll("\"", "");
+                values.add(s);
             }
         }
 
-        // null(news-topic: "Porte") (news-keyword: []) (news-topic: "Sport") (news-keyword: [])
+        if (values.isEmpty()) {
+            Toast.makeText(this, "Nothing found", Toast.LENGTH_LONG).show();
+            return;
+        }
 
         final String query = result.getResolvedQuery();
         final String action = result.getAction();
         final String fulfillment = result.getFulfillment().getSpeech();
 
         tts.speak(fulfillment, TextToSpeech.QUEUE_FLUSH, null);
-        startAudio(parameters);
+
+
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < values.size() - 1; i++) {
+            builder.append(values.get(i));
+            builder.append(",");
+        }
+        builder.append(values.get(values.size() - 1));
+
+        startAudio(builder.toString());
     }
 
     private void startAudio(final String speechResult) {

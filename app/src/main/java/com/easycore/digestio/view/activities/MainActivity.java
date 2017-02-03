@@ -33,8 +33,11 @@ public class MainActivity extends BaseActivity implements MainView, AudioItemAda
 
     public static void startActivity(Activity activity, String parameters) {
         Intent intent = new Intent(activity, MainActivity.class);
+//        Bundle bundle = new Bundle();
+//        bundle.putString(EXTRA_SEARCH_RESULT, parameters);
+//        intent.putExtras(bundle);
         intent.putExtra(EXTRA_SEARCH_RESULT, parameters);
-        activity.startActivity(new Intent(activity, MainActivity.class));
+        activity.startActivity(intent);
     }
 
 
@@ -54,11 +57,10 @@ public class MainActivity extends BaseActivity implements MainView, AudioItemAda
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        String searchResult = "null(news-topic: \"Porte\") (news-keyword: []) (news-topic: \"Sport\") (news-keyword: [])";
 
-        if (getIntent().hasExtra(EXTRA_SEARCH_RESULT)) {
-            searchResult = getIntent().getStringExtra(EXTRA_SEARCH_RESULT);
-        }
+//        Bundle extras = getIntent().getExtras();
+//        String searchResult = extras.getString(EXTRA_SEARCH_RESULT, "sport");
+        String searchResult = getIntent().getStringExtra(EXTRA_SEARCH_RESULT);
 
         presenter = new MainPresenter((App) getApplication());
         presenter.onEnterScope(savedInstanceState);
@@ -83,6 +85,12 @@ public class MainActivity extends BaseActivity implements MainView, AudioItemAda
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        presenter.stopPlayback();
+    }
+
+    @Override
     public void fillAudioItems(ArrayList<AudioItem> items) {
         rcvLayoutManager = new LinearLayoutManager(this);
         adapter = new AudioItemAdapter(items, this, this);
@@ -94,6 +102,12 @@ public class MainActivity extends BaseActivity implements MainView, AudioItemAda
     @Override
     public void notifyItemsChanged() {
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void finishOnEmptyResponse() {
+        Toast.makeText(this, "Nothing found... :-(", Toast.LENGTH_LONG).show();
+        finish();
     }
 
     @Override
